@@ -1,0 +1,22 @@
+<script type="text/javascript" src="/javascripts/dist/paper-full.js"></script>
+<script defer src="/javascripts/pixels.js"></script>
+<script type="text/javascript">
+  paper.install(window);
+</script>
+
+<div class="row">
+  <div class="col-md-8">
+    <canvas id="canvas" resize="" data-paper-scope="1" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas>
+    <img width="512" height="512" id="game" style="display: none;" src=''>
+  </div>
+  <div class="col-md-4">
+    <div class="row">
+      <label>
+        <input id="answerInput" type="text" class="form-control col-md-6" placeholder="Your answer">
+      </label>
+      <button class="btn btn-success">Send</button>
+      <ul>
+      </ul>
+    </div>
+  </div>
+</div>

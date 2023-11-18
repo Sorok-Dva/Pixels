@@ -1,0 +1,91 @@
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<!-- Custom Styles -->
+<style>
+  body {
+    background-color: #f8f9fa;
+  }
+
+  .login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+
+  .login-btn {
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="login-container">
+    <h2 class="text-center mb-4">Login</h2>
+    <form id="loginForm">
+      <div class="form-group">
+        <input type="text" class="form-control" id="usernameInput" placeholder="Nickname" required>
+      </div>
+      <!--<div class="form-group">
+        <input type="password" class="form-control" id="inputPassword" placeholder="Password" required>
+      </div>-->
+      <button type="submit" class="btn btn-primary login-btn">Login</button>
+    </form>
+  </div>
+</div>
+<!-- Bootstrap JS and jQuery (needed for Bootstrap) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+  const socket = io({
+    auth: { token: localStorage.getItem('jwt') } // Get token from local storage
+  });
+
+  const loginForm = document.getElementById('loginForm');
+
+  loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const username = document.getElementById('usernameInput').value;
+    try {
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      const data = await response.json();
+      localStorage.setItem('jwt', data.token); // Store token in local storage
+      socket.auth = { token: data.token }; // Set token for socket authentication
+      socket.connect(); // Connect socket after authentication
+      login(username);
+    } catch (error) {
+      console.error('Login error:', error);
+    }
+  });
+
+  function login(username) {
+    $(location).prop('href', '/game')
+  }
+
+  // Handle events when a user joins or leaves
+  socket.on('connect', () => {
+    console.log('Connected to server');
+  });
+
+  socket.on('user joined', (username) => {
+    console.log(`${username} joined`);
+    // Update UI or notify other users
+  });
+
+  socket.on('user left', (username) => {
+    console.log(`${username} left`);
+    // Update UI or notify other users
+  });
+
+  // Other game logic and event handling
+</script>
