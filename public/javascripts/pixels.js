@@ -2,8 +2,13 @@ const socket = io({
   auth: { token: localStorage.getItem('jwt') } // Get token from local storage
 });
 
+socket.on('connect_error', (error) => {
+  console.error('Connection error:', error);
+  if (error.message.includes('Authentication error'))
+    $(location).prop('href', '/');
+});
+
 socket.emit('join game')
-console.log('join game')
 socket.on('message', text => {
   const el = document.createElement('li');
   el.innerHTML = text;
