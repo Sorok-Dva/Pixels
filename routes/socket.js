@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const images = require('../components/images');
 
 let connectedUsers = {}
+let nicknames = []
 let image = images.retrieveImage()
 
 module.exports = async (server) => {
@@ -31,8 +32,24 @@ module.exports = async (server) => {
     console.log('New user connected:', socket.user.username);
     // Store the client's socket ID
     connectedUsers[socket.id] = socket;
+    console.log(nicknames)
+    if (nicknames.map(n => n.toLowerCase()).includes(socket.user.username.toLowerCase()))
+      connectedUsers[socket.id].emit('nicknameTaken');
+    else nicknames.push(socket.user.username)
     // Handle game events, chat, etc.
+    io.emit('list users', nicknames);
+
+    socket.on('check nickname availability', (nickname) => {
+      console.log('check nickname availability')
+      if (nicknames.map(n => n.toLowerCase()).includes(nickname.toLowerCase()))
+        connectedUsers[socket.id].emit('nicknameTaken', true);
+      else {
+        nicknames.push(socket.user.username)
+        connectedUsers[socket.id].emit('nicknameTaken', false);
+      }
+    })
     socket.on('join game', async () => {
+      io.emit('list users', nicknames);
       if (connectedUsers[socket.id]) {
         connectedUsers[socket.id].emit('image', await image);
       } else {
@@ -58,6 +75,8 @@ module.exports = async (server) => {
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.user.username);
       delete connectedUsers[socket.id];
+      nicknames = nicknames.filter(item => item !== socket.user.username)
+      io.emit('list users', nicknames);
     });
   });
 }

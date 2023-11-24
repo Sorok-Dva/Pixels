@@ -101,3 +101,10 @@ socket.on('image', image => {
     } else console.log('bad answer')
   }
 });
+
+socket.on('list users', users => {
+  $('#players li:not(:first-child)').remove();
+  users.map(user => {
+    $('#players').append(`<li class="user">${user}</li>`)
+  })
+});

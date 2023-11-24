@@ -52,7 +52,11 @@
   loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const username = document.getElementById('usernameInput').value;
+    socket.emit('check nickname availability', username);
     try {
+      socket.on('nicknameTaken', (taken) => {
+        alert('nickname taken')
+      })
       const response = await fetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
