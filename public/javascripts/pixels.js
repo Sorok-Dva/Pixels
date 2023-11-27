@@ -116,7 +116,7 @@ socket.on('image', image => {
 });
 
 socket.on('list users', users => {
-  $('#players li:not(:first-child)').remove();
+  $('#players li').remove();
   users.map(user => {
     $('#players').append(`<li class="user">${user}</li>`)
   })

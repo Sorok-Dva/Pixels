@@ -32,9 +32,11 @@ module.exports = async (server) => {
     console.log('New user connected:', socket.user.username);
     // Store the client's socket ID
     connectedUsers[socket.id] = socket;
-    console.log(nicknames)
-    if (nicknames.map(n => n.toLowerCase()).includes(socket.user.username.toLowerCase()))
+    console.log('nickname before verification', nicknames)
+    if (nicknames.map(n => n.toLowerCase()).includes(socket.user.username.toLowerCase())) {
       connectedUsers[socket.id].emit('nicknameTaken');
+      console.log('nickname taken', nicknames.map(n => n.toLowerCase()).includes(socket.user.username.toLowerCase()))
+    }
     else nicknames.push(socket.user.username)
     // Handle game events, chat, etc.
     io.emit('list users', nicknames);
