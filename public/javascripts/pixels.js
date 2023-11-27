@@ -2,13 +2,18 @@ const socket = io({
   auth: { token: localStorage.getItem('jwt') } // Get token from local storage
 });
 
+socket.emit('join game')
+
 socket.on('connect_error', (error) => {
   console.error('Connection error:', error);
   if (error.message.includes('Authentication error'))
     $(location).prop('href', '/');
 });
 
-socket.emit('join game')
+socket.on('disconnect', (error) => {
+  alert('connection lost');
+});
+
 socket.on('message', text => {
   const el = document.createElement('li');
   el.innerHTML = text;
@@ -86,10 +91,11 @@ socket.on('image', image => {
     });
   }
 
-  document.querySelector('button').onclick = () => {
+  const processAnswer = () => {
     const answerInput = $('#answerInput')
     const text = answerInput.val();
     answerInput.val('');
+    if (text === '' || text === ' ') return false;
     socket.emit('answer', text)
     const regex = new RegExp(`\\b${image.answer}\\b`, 'g');
     const matches = text.match(regex);
@@ -100,6 +106,13 @@ socket.on('image', image => {
       socket.emit('retrieve image')
     } else console.log('bad answer')
   }
+
+  $('#sendAnswer').click(() => processAnswer());
+  $('#answerInput').keypress(function(event) {
+    if (event.key === 'Enter') {
+      processAnswer();
+    }
+  });
 });
 
 socket.on('list users', users => {
