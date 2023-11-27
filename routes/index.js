@@ -16,8 +16,6 @@ router.post('/login', (req, res) => {
 
 /* GET game page */
 router.get('/game', async (req, res, next) => {
-  // await socket.sendImage()
-  // console.log(socket)
   res.render('game')
 })
 
