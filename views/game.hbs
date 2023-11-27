@@ -10,16 +10,20 @@
   <div class="col-md-8">
     <canvas id="canvas" resize="" data-paper-scope="1" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas>
     <img width="512" height="512" id="game" style="display: none;" src=''>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="input-group mb-3">
+          <input id="answerInput" type="text" class="form-control" placeholder="Your answer" maxlength="20">
+          <button id="sendAnswer" class="btn btn-success" type="button">Send</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="col-md-4">
     <div class="row">
       <div class="col-md-6">
-        <label>
-          <input id="answerInput" type="text" class="form-control col-md-6" placeholder="Your answer">
-        </label>
-        <button class="btn btn-success">Send</button>
-        <ul>
-        </ul>
+        <h4>Answers</h4>
+        <ul></ul>
       </div>
       <div class="col-md-6">
         <ul id="players">
