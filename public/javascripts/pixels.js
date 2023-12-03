@@ -1,6 +1,10 @@
 const socket = io({
   auth: { token: localStorage.getItem('jwt') } // Get token from local storage
 });
+let currentImage
+// Initialisation du Raster une seule fois
+let rasterInitialized = false;
+let raster;
 
 socket.emit('join game')
 
@@ -20,22 +24,18 @@ socket.on('message', text => {
   document.querySelector('ul').appendChild(el)
 });
 
-socket.on('image', image => {
+function initializeRaster(imageData) {
   paper.setup('canvas');
 
-  $('#game').attr('src', image.data64)
-  const raster = new Raster('game');
-  raster.source = image.data64;
+  $('#game').attr('src', imageData.data64);
+  raster = new Raster('game');
+  raster.source = imageData.data64;
   let loaded = false;
 
   raster.on('load', function() {
     loaded = true;
     onResize();
   });
-
-  raster.visible = false;
-
-  let lastPos = view.center;
 
   function moveHandler(event) {
     if (lastPos.getDistance(event.point) < 10)
@@ -91,28 +91,40 @@ socket.on('image', image => {
     });
   }
 
-  const processAnswer = () => {
-    const answerInput = $('#answerInput')
-    const text = answerInput.val();
-    answerInput.val('');
-    if (text === '' || text === ' ') return false;
-    socket.emit('answer', text)
-    const regex = new RegExp(`\\b${image.answer}\\b`, 'g');
-    const matches = text.match(regex);
-    console.log(matches)
-    if (matches) {
-      console.log('good answer')
-      project.activeLayer.removeChildren();
-      socket.emit('retrieve image')
-    } else console.log('bad answer')
+  raster.visible = false;
+  let lastPos = view.center;
+}
+
+socket.on('image', image => {
+  currentImage = image;
+
+  if (!rasterInitialized) {
+    initializeRaster(image);
+    rasterInitialized = true;
   }
 
-  $('#sendAnswer').click(() => processAnswer());
-  $('#answerInput').keypress(function(event) {
-    if (event.key === 'Enter') {
-      processAnswer();
-    }
-  });
+  raster.source = image.data64;
+});
+
+const processAnswer = () => {
+  const answerInput = $('#answerInput')
+  const text = answerInput.val();
+  answerInput.val('');
+  if (text === '' || text === ' ') return false;
+  socket.emit('answer', text)
+  const regex = new RegExp(`\\b${currentImage.answer}\\b`, 'g');
+  const matches = text.match(regex);
+  console.log(matches, currentImage.answer)
+  if (matches) {
+    console.log('good answer')
+    project.activeLayer.removeChildren();
+    socket.emit('retrieve image')
+  } else console.log('bad answer')
+}
+
+$('#sendAnswer').click(() => processAnswer());
+$('#answerInput').keypress((event) => {
+  if (event.key === 'Enter') processAnswer();
 });
 
 socket.on('list users', users => {
