@@ -4,9 +4,10 @@ const images = require('../components/images');
 
 let connectedUsers = {}
 let nicknames = []
-let image = images.retrieveImage()
 
 module.exports = async (server) => {
+  let image = await images.retrieveImage()
+
   const io = socketIO(server);
   // Middleware for JWT authentication
   const verifyToken = (token) => {
@@ -51,9 +52,10 @@ module.exports = async (server) => {
       }
     })
     socket.on('join game', async () => {
-      io.emit('list users', nicknames);
+      const users = nicknames.map(u => ({ name: u, points: 0}))
+      io.emit('list users', users);
       if (connectedUsers[socket.id]) {
-        connectedUsers[socket.id].emit('image', await image);
+        connectedUsers[socket.id].emit('image', image);
       } else {
         console.log('Client with that ID is not connected.');
       }
@@ -64,13 +66,17 @@ module.exports = async (server) => {
       io.emit('image', image);
     });
 
-    socket.on('answer', (answer) => {
-      console.log(answer, image.answer, answer === image.answer);
-      const regex = new RegExp(`\\b${image.answer}\\b`, 'g');
-      const matches = answer.match(regex);
-      let finalAnswer = `<span style="color: ${matches ? 'greenyellow' : 'red'}">${answer}</span>`
+    socket.on('answer', async (answer) => {
+      try {
+        console.log(answer, image.answer, answer === image.answer);
+        const regex = new RegExp(`\\b${image.answer}\\b`, 'g');
+        const matches = answer.match(regex);
+        let finalAnswer = `<span style="color: ${matches ? 'green' : 'red'}">${answer}</span>`;
 
-      io.emit('message', `${socket.user.username} said ${finalAnswer}` );
+        io.emit('message', `${socket.user.username} said ${finalAnswer}`);
+      } catch (error) {
+        console.error('Error retrieving image or handling answer:', error);
+      }
     });
 
     // Disconnect event
