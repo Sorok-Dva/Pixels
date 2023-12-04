@@ -20,3 +20,10 @@ canvas[resize] {
   height: 100%;
 }
 
+ul#answers {
+  height: 500px;
+  overflow-y: scroll;
+  background: rgba(0,0,0,0.4);
+  opacity: 0.7;
+}
+
