@@ -2,7 +2,6 @@ const socket = io({
   auth: { token: localStorage.getItem('jwt') } // Get token from local storage
 });
 let currentImage
-// Initialisation du Raster une seule fois
 let rasterInitialized = false;
 let raster;
 
@@ -18,10 +17,18 @@ socket.on('disconnect', (error) => {
   alert('connection lost');
 });
 
+socket.on('list users', users => {
+  $('#players li').remove();
+  users.map(user => {
+    $('#players').append(`<li class="user">${user.name} (${user.points} points)</li>`)
+  })
+});
+
 socket.on('message', text => {
   const el = document.createElement('li');
   el.innerHTML = text;
   document.querySelector('ul').appendChild(el)
+  scrollToBottom();
 });
 
 function initializeRaster(imageData) {
@@ -96,6 +103,8 @@ function initializeRaster(imageData) {
 }
 
 socket.on('image', image => {
+  resetTimer();
+  stopwatch();
   currentImage = image;
 
   if (!rasterInitialized) {
@@ -108,11 +117,11 @@ socket.on('image', image => {
 
 const processAnswer = () => {
   const answerInput = $('#answerInput')
-  const text = answerInput.val();
+  const text = answerInput.val().toLowerCase();
   answerInput.val('');
   if (text === '' || text === ' ') return false;
   socket.emit('answer', text)
-  const regex = new RegExp(`\\b${currentImage.answer}\\b`, 'g');
+  const regex = new RegExp(`\\b${currentImage.answer.toLowerCase()}\\b`, 'g');
   const matches = text.match(regex);
   console.log(matches, currentImage.answer)
   if (matches) {
@@ -127,9 +136,8 @@ $('#answerInput').keypress((event) => {
   if (event.key === 'Enter') processAnswer();
 });
 
-socket.on('list users', users => {
-  $('#players li').remove();
-  users.map(user => {
-    $('#players').append(`<li class="user">${user}</li>`)
-  })
-});
+const scrollToBottom = () => {
+  $('#answers').animate({
+    scrollTop: $('#answers')[0].scrollHeight
+  }, 'fast');
+}
