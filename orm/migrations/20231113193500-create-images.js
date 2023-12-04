@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       data64: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT('long')
       },
       answer: {
         type: Sequelize.STRING
