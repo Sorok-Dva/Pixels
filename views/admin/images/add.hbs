@@ -1,0 +1,20 @@
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 mt-5">
+      <h3 class="text-center mb-4">Add an image in the game</h3>
+      <form action="/admin/images/add" method="post">
+        <div class="form-group">
+          <label for="urlField">URL</label>
+          <input type="url" class="form-control" id="urlField" name="url" placeholder="Enter URL" required>
+          <small id="urlHelp" class="form-text text-muted">Please enter the URL.</small>
+        </div>
+        <div class="form-group">
+          <label for="answerField">Answer</label>
+          <input type="text" class="form-control" id="answerField" name="answer" placeholder="Enter Answer" required>
+          <small id="answerHelp" class="form-text text-muted">Please enter the answer.</small>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
