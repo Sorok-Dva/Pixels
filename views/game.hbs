@@ -1,5 +1,6 @@
 <script type="text/javascript" src="/javascripts/dist/paper-full.js"></script>
 <script defer src="/javascripts/pixels.js"></script>
+<script defer src="/javascripts/stopwatch.js"></script>
 <script type="text/javascript">
   paper.install(window);
   $('.goBack').click((e) => {
@@ -13,6 +14,8 @@
 
 <div class="row">
   <div class="col-md-8">
+    <p id="stopwatch">00:00:00.000</p>
+
     <canvas id="canvas" resize="" data-paper-scope="1" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas>
     <img width="512" height="512" id="game" style="display: none;" src=''>
     <div class="row">
@@ -28,7 +31,7 @@
     <div class="row">
       <div class="col-md-6">
         <h4>Answers</h4>
-        <ul></ul>
+        <ul id="answers"></ul>
       </div>
       <div class="col-md-6">
         <h4>Players</h4>
