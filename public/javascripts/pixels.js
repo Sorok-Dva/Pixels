@@ -120,7 +120,7 @@ const processAnswer = () => {
   const text = answerInput.val().toLowerCase();
   answerInput.val('');
   if (text === '' || text === ' ') return false;
-  socket.emit('answer', text)
+  socket.emit('answer', { answer: text, timer: timerFormatted })
   const regex = new RegExp(`\\b${currentImage.answer.toLowerCase()}\\b`, 'g');
   const matches = text.match(regex);
   console.log(matches, currentImage.answer)

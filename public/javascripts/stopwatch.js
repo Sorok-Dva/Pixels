@@ -1,4 +1,5 @@
 let timer;
+let timerFormatted;
 let running = false;
 let hours = 0;
 let minutes = 0;
@@ -43,8 +44,9 @@ function updateStopwatch() {
     }
   }
 
+  timerFormatted = `${formatTime(minutes)}:${formatTime(seconds)}.${formatMilliseconds(milliseconds)}`;
   const stopwatch = document.getElementById('stopwatch');
-  stopwatch.textContent = `${formatTime(minutes)}:${formatTime(seconds)}.${formatMilliseconds(milliseconds)}`;
+  stopwatch.textContent = timerFormatted
 
 }
 
@@ -61,6 +63,7 @@ socket.on('syncTimer', (data) => {
   hours = data.hours;
   minutes = data.minutes;
   seconds = data.seconds;
+  milliseconds = data.milliseconds;
 
   if (running) {
     timer = setInterval(updateStopwatch, 1000);

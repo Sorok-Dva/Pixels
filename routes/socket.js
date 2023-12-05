@@ -33,6 +33,9 @@ module.exports = async (server) => {
     console.log('New user connected:', socket.user.username);
     // Store the client's socket ID
     connectedUsers[socket.id] = socket;
+    connectedUsers[socket.id].user.points = 0;
+    console.log(connectedUsers);
+
     console.log('nickname before verification', nicknames)
     if (nicknames.map(n => n.toLowerCase()).includes(socket.user.username.toLowerCase())) {
       connectedUsers[socket.id].emit('nicknameTaken');
@@ -51,6 +54,7 @@ module.exports = async (server) => {
         connectedUsers[socket.id].emit('nicknameTaken', false);
       }
     })
+
     socket.on('join game', async () => {
       const users = nicknames.map(u => ({ name: u, points: 0}))
       io.emit('list users', users);
@@ -66,14 +70,15 @@ module.exports = async (server) => {
       io.emit('image', image);
     });
 
-    socket.on('answer', async (answer) => {
+    socket.on('answer', async (data) => {
       try {
-        console.log(answer, image.answer, answer === image.answer);
+        console.log(data, image.answer, data.answer === image.answer);
         const regex = new RegExp(`\\b${image.answer}\\b`, 'g');
-        const matches = answer.match(regex);
-        let finalAnswer = `<span style="color: ${matches ? 'green' : 'red'}">${answer}</span>`;
-
-        io.emit('message', `${socket.user.username} said ${finalAnswer}`);
+        const matches = data.answer.match(regex);
+        let finalAnswer = `<span style="color: ${matches ? 'green' : 'red'}">${data.answer}</span>`;
+        let timer = matches ? `<small>(${data.timer})</small>` : '';
+        connectedUsers[socket.id].points = matches ? connectedUsers[socket.id].points++ : + 0;
+        io.emit('message', `${socket.user.username} said ${finalAnswer} ${timer}`);
       } catch (error) {
         console.error('Error retrieving image or handling answer:', error);
       }
