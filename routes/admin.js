@@ -4,7 +4,7 @@ const Models = require('../orm/models/index')
 const imageHelper = require('../helpers/image')
 
 /* GET admin image */
-router.get('/images/:id', async (req, res, next) => {
+router.get('/images/view/:id', async (req, res, next) => {
   await Models.Images.findOne({
     fields: ['data64', 'answer'],
     where: {
@@ -30,9 +30,10 @@ router.post('/images/add', (req, res, next) => {
       await Models.Images.create({
         data64: base64Data,
         answer: req.body.answer,
+        category: req.body.category,
         validated: true,
       }).then((image) => {
-        res.redirect(`/admin/images/${image.id}`);
+        res.redirect(`/admin/images/view/${image.id}`);
       }).catch(error => {
         console.log('Fail to add image into database.', error)
       })
