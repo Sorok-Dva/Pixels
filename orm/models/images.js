@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Images.init({
     data64: DataTypes.TEXT,
+    category: DataTypes.TEXT,
     answer: DataTypes.STRING,
     validated: DataTypes.BOOLEAN
   }, {

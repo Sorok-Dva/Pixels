@@ -12,6 +12,9 @@ module.exports = {
       data64: {
         type: Sequelize.TEXT('long')
       },
+      category: {
+        type: Sequelize.TEXT
+      },
       answer: {
         type: Sequelize.STRING
       },
