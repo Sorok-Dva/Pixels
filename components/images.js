@@ -16,12 +16,17 @@ const images = {
         },
       }
     }).then((image) => {
-      excludedIds.push(image[0].id)
-      console.log('the image is : ', image[0].answer)
-      return {
-        data64: image[0].data64,
-        answer: image[0].answer,
-      };
+      if (image.length === 0) {
+        excludedIds.length = 0;
+        return images.retrieveImage();
+      } else {
+        excludedIds.push(image[0].id)
+        console.log('the image is : ', image[0].answer)
+        return {
+          data64: image[0].data64,
+          answer: image[0].answer,
+        };
+      }
     });
   }
 }
