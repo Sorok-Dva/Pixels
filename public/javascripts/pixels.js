@@ -143,7 +143,7 @@ const scrollToBottom = () => {
 }
 
 document.onkeydown = (e) => {
-  if (e.key === 123) {
+  if (e.key == 123) {
     e.preventDefault();
   }
   if (e.ctrlKey && e.shiftKey && e.key === 'I') {
