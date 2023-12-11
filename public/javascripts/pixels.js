@@ -121,10 +121,17 @@ const processAnswer = () => {
   answerInput.val('');
   if (text === '' || text === ' ') return false;
   socket.emit('answer', { answer: text, timer: timerFormatted })
-  const regex = new RegExp(`\\b${currentImage.answer.toLowerCase()}\\b`, 'g');
+  const answer = currentImage.answer.toLowerCase();
+  const regexPattern = answer
+    .split('')
+    .map((char, index) => {
+      // Rendre certains caractères facultatifs (par exemple, chaque caractère a une chance sur 5 d'être facultatif)
+      return Math.random() < 0.2 ? `(${char})?` : char;
+    })
+    .join('');
+  const regex = new RegExp(`\\b${regexPattern}\\b`, 'g');
   const matches = text.match(regex);
-  console.log(matches, currentImage.answer)
-  if (matches) {
+  if (currentImage.answer.includes(text) || (matches)) {
     console.log('good answer')
     project.activeLayer.removeChildren();
     socket.emit('retrieve image')

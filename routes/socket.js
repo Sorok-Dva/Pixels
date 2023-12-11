@@ -73,8 +73,16 @@ module.exports = async (server) => {
     socket.on('answer', async (data) => {
       try {
         console.log(data, image.answer, data.answer === image.answer);
-        const regex = new RegExp(`\\b${image.answer}\\b`, 'g');
-        const matches = data.answer.match(regex);
+        const answer = image.answer.toLowerCase();
+        const regexPattern = answer
+          .split('')
+          .map((char, index) => {
+            // Rendre certains caractères facultatifs (par exemple, chaque caractère a une chance sur 4 d'être facultatif)
+            return Math.random() < 0.25 ? `(${char})?` : char;
+          })
+          .join('');
+        const regex = new RegExp(`\\b${regexPattern}\\b`, 'gi'); // 'i' pour l'insensibilité à la casse
+        const matches = data.answer.toLowerCase().match(regex) || answer.includes(data.answer);
         let finalAnswer = `<span style="color: ${matches ? 'green' : 'red'}">${data.answer}</span>`;
         let timer = matches ? `<small>(${data.timer})</small>` : '';
         connectedUsers[socket.id].points = matches ? connectedUsers[socket.id].points++ : + 0;
