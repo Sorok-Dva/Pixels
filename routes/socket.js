@@ -86,6 +86,7 @@ module.exports = async (server) => {
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.user.username);
       delete connectedUsers[socket.id];
+      delete users[socket.user.username]
       io.emit('list users', users);
     });
   });
