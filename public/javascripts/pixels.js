@@ -19,8 +19,10 @@ socket.on('disconnect', (error) => {
 
 socket.on('list users', users => {
   $('#players li').remove();
-  for (const user in users) {
-    $('#players').append(`<li class="user">${user} (${users[user].points} points)</li>`)
+  const entries = Object.entries(users);
+  entries.sort((a, b) => b[1].points - a[1].points);
+  for (const [user, value] of entries) {
+    $('#players').append(`<li class="user">${user} (${value.points} points)</li>`)
   }
 });
 
