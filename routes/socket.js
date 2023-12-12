@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const images = require('../components/images');
 
 let connectedUsers = {}
-let nicknames = []
+let users = {}
 
 module.exports = async (server) => {
   let image = await images.retrieveImage()
@@ -19,7 +19,6 @@ module.exports = async (server) => {
     });
   }
 
-// Socket.io logic
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth.token;
@@ -33,30 +32,19 @@ module.exports = async (server) => {
     console.log('New user connected:', socket.user.username);
     // Store the client's socket ID
     connectedUsers[socket.id] = socket;
-    connectedUsers[socket.id].user.points = 0;
-    console.log(connectedUsers);
 
-    console.log('nickname before verification', nicknames)
-    if (nicknames.map(n => n.toLowerCase()).includes(socket.user.username.toLowerCase())) {
+    console.log('nickname before verification', users)
+    if (socket.user.username in users) {
       connectedUsers[socket.id].emit('nicknameTaken');
-      console.log('nickname taken', nicknames.map(n => n.toLowerCase()).includes(socket.user.username.toLowerCase()))
+      console.log('nickname taken', socket.user.username in users)
     }
-    else nicknames.push(socket.user.username)
-    // Handle game events, chat, etc.
-    io.emit('list users', nicknames);
+    else users[socket.user.username] = {
+      points: 0
+    };
 
-    socket.on('check nickname availability', (nickname) => {
-      console.log('check nickname availability')
-      if (nicknames.map(n => n.toLowerCase()).includes(nickname.toLowerCase()))
-        connectedUsers[socket.id].emit('nicknameTaken', true);
-      else {
-        nicknames.push(socket.user.username)
-        connectedUsers[socket.id].emit('nicknameTaken', false);
-      }
-    })
+    io.emit('list users', users);
 
     socket.on('join game', async () => {
-      const users = nicknames.map(u => ({ name: u, points: 0}))
       io.emit('list users', users);
       if (connectedUsers[socket.id]) {
         connectedUsers[socket.id].emit('image', image);
@@ -85,19 +73,20 @@ module.exports = async (server) => {
         const matches = data.answer.toLowerCase().match(regex) || answer.includes(data.answer);
         let finalAnswer = `<span style="color: ${matches ? 'green' : 'red'}">${data.answer}</span>`;
         let timer = matches ? `<small>(${data.timer})</small>` : '';
-        connectedUsers[socket.id].points = matches ? connectedUsers[socket.id].points++ : + 0;
+        users[socket.user.username].points = matches
+          ? ++users[socket.user.username].points
+          : users[socket.user.username].points;
         io.emit('message', `${socket.user.username} said ${finalAnswer} ${timer}`);
+        io.emit('list users', users);
       } catch (error) {
         console.error('Error retrieving image or handling answer:', error);
       }
     });
 
-    // Disconnect event
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.user.username);
       delete connectedUsers[socket.id];
-      nicknames = nicknames.filter(item => item !== socket.user.username)
-      io.emit('list users', nicknames);
+      io.emit('list users', users);
     });
   });
 }

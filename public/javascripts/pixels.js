@@ -19,9 +19,9 @@ socket.on('disconnect', (error) => {
 
 socket.on('list users', users => {
   $('#players li').remove();
-  users.map(user => {
-    $('#players').append(`<li class="user">${user.name} (${user.points} points)</li>`)
-  })
+  for (const user in users) {
+    $('#players').append(`<li class="user">${user} (${users[user].points} points)</li>`)
+  }
 });
 
 socket.on('message', text => {
