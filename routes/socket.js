@@ -6,9 +6,57 @@ let connectedUsers = {}
 let users = {}
 
 module.exports = async (server) => {
+  const io = socketIO(server);
   let image = await images.retrieveImage()
 
-  const io = socketIO(server);
+  let timer;
+  let running = false;
+  let hours = 0;
+  let minutes = 0;
+  let seconds = 0;
+  let milliseconds = 0;
+
+  function stopwatch() {
+    if (!running) {
+      running = true;
+      timer = setInterval(updateStopwatch, 10);
+      io.emit('syncTimer', { running, hours, minutes, seconds, milliseconds });
+    } else {
+      running = false;
+      clearInterval(timer);
+      io.emit('syncTimer', { running, hours, minutes, seconds, milliseconds });
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    running = false;
+    hours = 0;
+    minutes = 0;
+    seconds = 0;
+    milliseconds = 0;
+    updateStopwatch();
+    io.emit('syncTimer', { running, hours, minutes, seconds, milliseconds });
+  }
+
+  function updateStopwatch() {
+    milliseconds += 10;
+    if (milliseconds >= 1000) {
+      milliseconds = 0;
+      seconds++;
+      if (seconds >= 60) {
+        seconds = 0;
+        minutes++;
+        if (minutes >= 60) {
+          minutes = 0;
+          hours++;
+        }
+      }
+    }
+
+    io.emit('syncTimer', { running, hours, minutes, seconds, milliseconds });
+  }
+
   // Middleware for JWT authentication
   const verifyToken = (token) => {
     return new Promise((resolve, reject) => {
@@ -43,6 +91,10 @@ module.exports = async (server) => {
     };
 
     io.emit('list users', users);
+
+    socket.on('startTimer', stopwatch);
+    socket.on('stopTimer', stopwatch);
+    socket.on('resetTimer', resetTimer);
 
     socket.on('join game', async () => {
       io.emit('list users', users);

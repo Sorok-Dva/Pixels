@@ -59,6 +59,7 @@ function formatMilliseconds(time) {
 }
 
 socket.on('syncTimer', (data) => {
+  console.log('syncTimer', data)
   running = data.running;
   hours = data.hours;
   minutes = data.minutes;
